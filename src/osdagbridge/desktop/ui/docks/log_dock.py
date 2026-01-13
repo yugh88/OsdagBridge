@@ -40,7 +40,7 @@ class LogDock(QWidget):
                     parent = self.parent()
                     if parent:
                         max_height = parent.height() - 20
-                        new_height = max(80, min(max_height, new_height))
+                        new_height = max(0, min(max_height, new_height))
                         parent_height = parent.height()
                         self.setFixedHeight(new_height)
                         self.move(self.x(), parent_height - new_height)
@@ -138,5 +138,5 @@ class LogDock(QWidget):
 
         available_width = parent.width() - input_dock_width - output_dock_width
 
-        self.setMinimumHeight(80)
+        self.setMinimumHeight(0)
         self.setFixedWidth(available_width)
