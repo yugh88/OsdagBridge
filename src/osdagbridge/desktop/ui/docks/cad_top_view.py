@@ -243,7 +243,7 @@ class TopViewCADWidget(QWidget):
         self.draw_top_view(painter)
     def draw_text_with_background(self, painter, x, y, text,
                               bg_color=QColor(255, 255, 255, 230), 
-                              text_color=QColor(0, 0, 0), font_size=7, bold=False):
+                              text_color=QColor(0, 0, 0), font_size=9, bold=False):
 
         font_weight = QFont.Bold if bold else QFont.Normal
         font = QFont('Arial', font_size, font_weight)
@@ -336,12 +336,12 @@ class TopViewCADWidget(QWidget):
             text_x = (x1 + x2) / 2
             text_y = y1 - 8 + text_offset if offset >= 0 else y1 + 15 + text_offset
             
-            font = QFont('Arial', 7, QFont.Bold)
+            font = QFont('Arial', 9, QFont.Bold)
             metrics = painter.fontMetrics()
             text_width = metrics.boundingRect(text).width()
             
             self.draw_text_with_background(painter, text_x - text_width/2, text_y, text, 
-                                        QColor(255, 255, 255, 240), QColor(0, 0, 0), 7, True)
+                                        QColor(255, 255, 255, 240), QColor(0, 0, 0), 9, True)
         else:
             top_arrow = [
                 QPointF(x1, y1),
@@ -374,7 +374,7 @@ class TopViewCADWidget(QWidget):
             text_y = (y1 + y2) / 2 + 3
             
             self.draw_text_with_background(painter, text_x, text_y, text,
-                                        QColor(255, 255, 255, 240), QColor(0, 0, 0), 7, True)
+                                        QColor(255, 255, 255, 240), QColor(0, 0, 0), 9, True)
     
     def draw_dimension_arrow_text_outside(self, painter, x1, y1, x2, y2, text, horizontal=True, 
                                           text_side='right', text_offset=15):
@@ -412,13 +412,13 @@ class TopViewCADWidget(QWidget):
                 text_x = (x1 + x2) / 2
                 text_y = y1 + text_offset + 10
                 
-            font = QFont('Arial', 7, QFont.Bold)
+            font = QFont('Arial', 9, QFont.Bold)
             painter.setFont(font)
             metrics = painter.fontMetrics()
             text_width = metrics.boundingRect(text).width()
             
             self.draw_text_with_background(painter, text_x - text_width/2, text_y, text, 
-                                        QColor(255, 255, 255, 240), QColor(0, 0, 0), 7, True)
+                                        QColor(255, 255, 255, 240), QColor(0, 0, 0), 9, True)
         else:
             painter.drawLine(QPointF(x1 - ext_len, y1), QPointF(x1 + ext_len, y1))
             painter.drawLine(QPointF(x2 - ext_len, y2), QPointF(x2 + ext_len, y2))
@@ -444,7 +444,7 @@ class TopViewCADWidget(QWidget):
                 text_x = x1 + text_offset
             
             self.draw_text_with_background(painter, text_x, text_y, text,
-                                        QColor(255, 255, 255, 240), QColor(0, 0, 0), 7, True)
+                                        QColor(255, 255, 255, 240), QColor(0, 0, 0), 9, True)
         
     def draw_leader_arrow(self, painter, from_x, from_y, to_x, to_y, text, bg_color=QColor(255, 255, 255, 250), text_color=QColor(0, 0, 0)):
         """a leader line with arrow pointing to component"""
@@ -465,7 +465,7 @@ class TopViewCADWidget(QWidget):
         painter.setBrush(QBrush(QColor(0, 0, 0)))
         painter.drawPolygon(QPolygonF(arrow_points))
         
-        self.draw_text_with_background(painter, from_x - 5, from_y - 5, text, bg_color, text_color, 7, True)
+        self.draw_text_with_background(painter, from_x - 5, from_y - 5, text, bg_color, text_color, 9, True)
     
     def draw_clean_leader_line(self, painter, target_x, target_y, label_x, label_y, text, 
                                 text_color=QColor(0, 0, 0), line_color=QColor(100, 100, 100)):
@@ -481,7 +481,7 @@ class TopViewCADWidget(QWidget):
         painter.drawEllipse(QPointF(target_x, target_y), 3, 3)
         
         # Draw text at label position
-        font = QFont('Arial', 7, QFont.Bold)
+        font = QFont('Arial', 9, QFont.Bold)
         painter.setFont(font)
         metrics = painter.fontMetrics()
         text_width = metrics.boundingRect(text).width()
@@ -497,7 +497,7 @@ class TopViewCADWidget(QWidget):
         
         # Draw text with background
         self.draw_text_with_background(painter, text_x, text_y, text,
-                                       QColor(255, 255, 255, 240), text_color, 7, True)
+                                       QColor(255, 255, 255, 240), text_color, 9, True)
     
     def compute_deck_total_width(self):
         """Compute total deck width including median if present"""
@@ -646,7 +646,7 @@ class TopViewCADWidget(QWidget):
         width_scale = available_height / max(total_model_width, 1.0)
         scale = min(span_scale, width_scale)  # zoom_level already applied to width/height
 
-        center_x = width / 2
+        center_x = self.width() * 0.55
         center_y = height / 2 - 20
 
         # FIX: Negate the skew angle
@@ -877,7 +877,7 @@ class TopViewCADWidget(QWidget):
         arc_radius = 50
         
         # Draw vertical reference line (what 0 skew would look like)
-        painter.setPen(QPen(QColor(100, 100, 100), 1.5, Qt.DashLine))
+        painter.setPen(QPen(QColor(0, 0, 0), 1.5, Qt.DashLine))
         painter.drawLine(QPointF(ref_x, ref_y), QPointF(ref_x, ref_y - arc_radius - 20))
         
         # Draw the actual skewed bearing line direction
@@ -885,7 +885,7 @@ class TopViewCADWidget(QWidget):
         skewed_end_x = ref_x - arc_radius * math.sin(skew_rad)
         skewed_end_y = ref_y - arc_radius * math.cos(skew_rad)
         
-        painter.setPen(QPen(QColor(0, 100, 200), 2.0))
+        painter.setPen(QPen(QColor(0, 0, 0), 2.0))
         painter.drawLine(QPointF(ref_x, ref_y), QPointF(skewed_end_x, skewed_end_y))
         
         # Draw arc from vertical to skewed line
@@ -898,7 +898,7 @@ class TopViewCADWidget(QWidget):
         # Span angle is the skew angle (use original input value for arc direction)
         span_angle_deg = skew_deg
         
-        painter.setPen(QPen(QColor(0, 100, 200), 2.5))
+        painter.setPen(QPen(QColor(0,0,0), 2.5))
         painter.drawArc(arc_rect, int(start_angle_deg * 16), int(-span_angle_deg * 16))
         
         # Draw arrow at end of arc
@@ -918,7 +918,7 @@ class TopViewCADWidget(QWidget):
             QPointF(arrow_x - arrow_size * math.cos(tangent_angle + 0.4),
                     arrow_y + arrow_size * math.sin(tangent_angle + 0.4))
         ]
-        painter.setBrush(QBrush(QColor(0, 100, 200)))
+        painter.setBrush(QBrush(QColor(0, 0, 0)))
         painter.drawPolygon(QPolygonF(arrow_points))
         
         # Add angle label with proper sign - using ORIGINAL input value
@@ -940,9 +940,13 @@ class TopViewCADWidget(QWidget):
         else:
             label_x -= 70
         
-        self.draw_text_with_background(painter, label_x, label_y,
-                                    angle_text, QColor(230, 240, 255, 250),
-                                    QColor(0, 100, 200), 8, True)
+        self.draw_text_with_background(
+            painter, label_x, label_y,
+            angle_text,
+            QColor(255, 255, 255, 240),
+            QColor(0, 0, 0),
+            9, True)
+
 
     def add_clean_top_view_dimensions(self, painter, girder_lines, girder_positions_y,
                             scale, n, bracing_positions, skew_rad,
@@ -977,7 +981,7 @@ class TopViewCADWidget(QWidget):
 
         # BRACING SPACING dimension (always visible)
         if self.params['cross_bracing_spacing'] > 0 and len(bracing_positions) > 1:
-            dim_y2 = dim_y_base + 35
+            dim_y2 = dim_y_base + 15
             cb_spacing_m = self.params['cross_bracing_spacing'] / 1000
             
             x1_brace = bracing_positions[0] + x_offset_last
@@ -1017,7 +1021,7 @@ class TopViewCADWidget(QWidget):
                 painter, label_x, label_y,
                 label_text,
                 QColor(255, 255, 255, 250),
-                QColor(0, 100, 0), 7, True
+                QColor(0, 100, 0), 9, True
             )
 
         # CL OF BEARING labels - ALWAYS VISIBLE (moved outside hover condition)
@@ -1028,11 +1032,11 @@ class TopViewCADWidget(QWidget):
         
         self.draw_text_with_background(painter, left_label_x, label_y_bearing,
                                     "CL of Bearing", QColor(255, 255, 255, 250),
-                                    QColor(200, 0, 0), 7, True)
+                                    QColor(200, 0, 0), 9, True)
         
         self.draw_text_with_background(painter, right_label_x, label_y_bearing,
                                     "CL of Bearing", QColor(255, 255, 255, 250),
-                                    QColor(200, 0, 0), 7, True)
+                                    QColor(200, 0, 0), 9, True)
 
         # HOVER LABELS (only shown when hovered) 
         
@@ -1043,7 +1047,7 @@ class TopViewCADWidget(QWidget):
             target_y = first_girder['y']
             
             label_x = target_x
-            label_y = target_y - 60
+            label_y = target_y - 30
             
             self.draw_clean_leader_line(painter, target_x, target_y, label_x, label_y,
                                     "Girder", girder_color, QColor(0, 100, 0))
@@ -1064,7 +1068,7 @@ class TopViewCADWidget(QWidget):
             target_x = (x1 + x2) / 2
             target_y = (y1 + y2) / 2
             
-            label_offset = 60
+            label_offset = 30
             label_x = target_x - label_offset * math.sin(skew_rad)
             label_y = target_y - label_offset
             
@@ -1084,9 +1088,9 @@ class TopViewCADWidget(QWidget):
             target_x = (x1 + x2) / 2
             target_y = (y1 + y2) / 2
             
-            label_offset = 50
+            label_offset = 10
             label_x = target_x - label_offset - 10
-            label_y = target_y + 20
+            label_y = target_y + 5
             
             self.draw_clean_leader_line(painter, target_x, target_y, label_x, label_y,
                                     "End Diaphragm", end_diaphragm_color, QColor(139, 69, 19))
@@ -1133,13 +1137,13 @@ class TopViewCADWidget(QWidget):
         text_x = (x1 + x2) / 2
         text_y = y1 + 15  # Below the dimension line
         
-        font = QFont('Arial', 7, QFont.Bold)
+        font = QFont('Arial', 9, QFont.Bold)
         painter.setFont(font)
         metrics = painter.fontMetrics()
         text_width = metrics.boundingRect(text).width()
         
         self.draw_text_with_background(painter, text_x - text_width/2, text_y, text, 
-                                    QColor(255, 255, 255, 240), QColor(0, 0, 0), 7, True)
+                                    QColor(255, 255, 255, 240), QColor(0, 0, 0), 9, True)
 
 
     def draw_skewed_dimension_arrow(self, painter, x1, y1, x2, y2, text, skew_rad):
@@ -1195,7 +1199,7 @@ class TopViewCADWidget(QWidget):
         text_y = mid_y + 4
         
         self.draw_text_with_background(painter, text_x, text_y, text,
-                                    QColor(255, 255, 255, 240), QColor(0, 0, 0), 7, True)
+                                    QColor(255, 255, 255, 240), QColor(0, 0, 0), 9, True)
 
     def add_clean_top_view_notes(self, painter, height):
         """Add professional notes"""
@@ -1214,7 +1218,7 @@ class TopViewCADWidget(QWidget):
             f"6. All dimensions in meters",
         ]
         
-        painter.setFont(QFont('Arial', 7))
+        painter.setFont(QFont('Arial', 9))
         painter.setPen(QPen(QColor(40, 40, 40), 1))
         
         for i, note in enumerate(notes):
