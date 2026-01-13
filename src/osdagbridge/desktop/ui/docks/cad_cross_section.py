@@ -337,7 +337,7 @@ class CrossSectionCADWidget(QWidget):
     
     def draw_dimension_arrow(self, painter, x1, y1, x2, y2, text, horizontal=True, offset=0, text_offset=0, draw_extensions=True, extension_direction='down', extension_end_y=None):
         """dimension line with arrows and text with extension lines"""
-        painter.setPen(QPen(QColor(0, 0, 0), 1.1))
+        painter.setPen(QPen(QColor(0, 0, 0), 0.8))
         
         painter.drawLine(QPointF(x1, y1), QPointF(x2, y2))
         
@@ -349,7 +349,7 @@ class CrossSectionCADWidget(QWidget):
             painter.drawLine(QPointF(x1 - ext_len, y1), QPointF(x1 + ext_len, y1))
             painter.drawLine(QPointF(x2 - ext_len, y2), QPointF(x2 + ext_len, y2))
         
-        arrow_size = 4
+        arrow_size = 2.5
         painter.setBrush(QBrush(QColor(0, 0, 0)))
         
         if horizontal:
@@ -441,12 +441,12 @@ class CrossSectionCADWidget(QWidget):
     def draw_dimension_arrow_text_outside(self, painter, x1, y1, x2, y2, text, horizontal=True, 
                                           text_side='right', text_offset=15):
         """Dimension line with arrows"""
-        painter.setPen(QPen(QColor(0, 0, 0), 1.1))
+        painter.setPen(QPen(QColor(0, 0, 0), 0.8))
         
         painter.drawLine(QPointF(x1, y1), QPointF(x2, y2))
         
         ext_len = 6
-        arrow_size = 4
+        arrow_size = 2.5
         painter.setBrush(QBrush(QColor(0, 0, 0)))
         
         if horizontal:
@@ -677,6 +677,8 @@ class CrossSectionCADWidget(QWidget):
         CROSS_BRACING_COLOR = QColor(200, 90, 0)  # darker orange
         END_DIAPHRAGM_COLOR = QColor(200, 90, 0)
         MEDIAN_COLOR = QColor(255, 210, 160)
+        CONCRETE_COLOR = QColor(225, 225, 225)
+        
         
         # Use base canvas dimensions scaled by zoom for proper scrolling
         width = self.width()
@@ -802,10 +804,7 @@ class CrossSectionCADWidget(QWidget):
         
         # Check if deck is hovered (visible brightness)
         deck_hovered = (self.hovered_element == 'deck')
-        if deck_hovered:
-            deck_color = QColor(240, 240, 240)  # Strong glow effect
-        else:
-            deck_color = QColor(230, 230, 230)
+        deck_color = QColor(240, 240, 240) if deck_hovered else CONCRETE_COLOR
         
         painter.setPen(QPen(QColor(0, 0, 0), 2))
         painter.setBrush(Qt.NoBrush)
@@ -834,7 +833,8 @@ class CrossSectionCADWidget(QWidget):
         self.cross_section_hover_zones.append((deck_hover_rect, 'deck'))
 
         # Crash barrier deck zones
-        painter.setBrush(QBrush(QColor(230, 230, 230)))
+        painter.setBrush(QBrush(CONCRETE_COLOR))
+
         painter.drawRect(QRectF(left_barrier_x, deck_top_y,
                                 crash_barrier_width_px, deck_thick_px))
         painter.drawRect(QRectF(right_barrier_x, deck_top_y,
@@ -847,7 +847,7 @@ class CrossSectionCADWidget(QWidget):
         # making the line dashed
         if fp_config in ['left', 'both'] and left_fp_width > 0:
             # Draw footpath fill only (no border)
-            painter.setBrush(QBrush(QColor(220, 220, 220)))
+            painter.setBrush(QBrush(CONCRETE_COLOR))
             painter.setPen(Qt.NoPen)
             painter.drawRect(QRectF(left_fp_x, fp_top_y,
                                 left_fp_width_px, fp_thick_px))
@@ -874,7 +874,7 @@ class CrossSectionCADWidget(QWidget):
 
         if fp_config in ['right', 'both'] and right_fp_width > 0:
             # Draw footpath fill
-            painter.setBrush(QBrush(QColor(220, 220, 220)))
+            painter.setBrush(QBrush(CONCRETE_COLOR))
             painter.setPen(Qt.NoPen)
             painter.drawRect(QRectF(right_fp_x, fp_top_y,
                                 right_fp_width_px, fp_thick_px))
@@ -1289,10 +1289,10 @@ class CrossSectionCADWidget(QWidget):
             deck_center_x = (deck_slab_left + deck_slab_right) / 2
 
         if deck_thick_px > 5:
-            painter.setPen(QPen(QColor(0, 0, 0), 1.1))
+            painter.setPen(QPen(QColor(0, 0, 0), 0.8))
             painter.drawLine(QPointF(deck_center_x, deck_top_y), QPointF(deck_center_x, deck_bottom_y))
             
-            arrow_size = 6
+            arrow_size = 2.5
             painter.setBrush(QBrush(QColor(0, 0, 0)))
             
             top_arrow = [
@@ -1511,16 +1511,16 @@ class CrossSectionCADWidget(QWidget):
 
     def draw_vertical_dimension_with_arrow(self, painter, x, y1, y2, text, side='left'):
         """Draw vertical dimension with arrow and text"""
-        painter.setPen(QPen(QColor(0, 0, 0), 1.1))
+        painter.setPen(QPen(QColor(0, 0, 0), 0.8))
         
         # Main vertical line
         painter.drawLine(QPointF(x, y1), QPointF(x, y2))
         
-        tick_len = 4
+        tick_len = 2.5
         painter.drawLine(QPointF(x - tick_len, y1), QPointF(x + tick_len, y1))
         painter.drawLine(QPointF(x - tick_len, y2), QPointF(x + tick_len, y2))
         
-        arrow_size = 4
+        arrow_size = 2.5
         painter.setBrush(QBrush(QColor(0, 0, 0)))
         
         top_arrow = [

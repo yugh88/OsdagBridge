@@ -614,15 +614,15 @@ class TopViewCADWidget(QWidget):
         self.top_view_hover_zones = []
         
         # Define colors
-        GIRDER_COLOR = QColor(0, 100, 0)
-        CROSS_BRACING_COLOR = QColor(255, 140, 0)
-        END_DIAPHRAGM_COLOR = QColor(139, 69, 19)
+        GIRDER_COLOR = QColor(40, 90, 160) 
+        CROSS_BRACING_COLOR = QColor(220, 130, 40)
+        END_DIAPHRAGM_COLOR = QColor(120, 70, 40)
         
         # Highlight colors 
-        GIRDER_HIGHLIGHT = QColor(0, 200, 0)
-        CROSS_BRACING_HIGHLIGHT = QColor(255, 200, 50)
-        END_DIAPHRAGM_HIGHLIGHT = QColor(200, 120, 50)
-        BEARING_HIGHLIGHT = QColor(255, 100, 100)
+        GIRDER_HIGHLIGHT = QColor(80, 140, 220) 
+        CROSS_BRACING_HIGHLIGHT = QColor(255, 180, 90)
+        END_DIAPHRAGM_HIGHLIGHT = QColor(180, 120, 80)
+        BEARING_HIGHLIGHT = QColor(255, 80, 80)
         
         # Use base canvas dimensions for consistent drawing regardless of zoom
         width = 800 * self.zoom_level
