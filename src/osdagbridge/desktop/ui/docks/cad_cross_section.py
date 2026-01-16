@@ -11,9 +11,9 @@ from PySide6.QtGui import QPainter, QPen, QColor, QFont, QBrush, QPolygonF
 from PySide6.QtGui import QPixmap
 import random
 
-
 class CrossSectionCADWidget(QWidget):
     """Widget for drawing bridge cross-section view"""
+    
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -296,10 +296,14 @@ class CrossSectionCADWidget(QWidget):
         self.cross_section_hover_zones = []
         
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
-        painter.fillRect(self.rect(), QColor(255, 255, 255))
-        
-        self.draw_cross_section(painter)
+        try:
+            painter.setRenderHint(QPainter.Antialiasing)
+            painter.fillRect(self.rect(), QColor(255, 255, 255))
+            self.draw_cross_section(painter)
+        except Exception as e:
+            print(" PAINT ERROR:", repr(e))
+        finally:
+            painter.end() 
     def draw_text_with_background(self, painter, x, y, text,
                               bg_color=QColor(255, 255, 255, 230), 
                               text_color=QColor(0, 0, 0), font_size=9, bold=False):
@@ -352,7 +356,7 @@ class CrossSectionCADWidget(QWidget):
             painter.drawLine(QPointF(x1 - ext_len, y1), QPointF(x1 + ext_len, y1))
             painter.drawLine(QPointF(x2 - ext_len, y2), QPointF(x2 + ext_len, y2))
         
-        arrow_size = 2.5
+        arrow_size = 4
         painter.setBrush(QBrush(QColor(0, 0, 0)))
         
         if horizontal:
@@ -628,8 +632,12 @@ class CrossSectionCADWidget(QWidget):
         p.end()
         return QBrush(pixmap)
 
-    def draw_median_crash_barriers(self, painter, median_start_x, median_end_x, deck_top_y, scale):
+    def draw_median_crash_barriers(self, painter, median_start_x, median_end_x, deck_top_y, scale, median_color):
         """Draw two crash barriers for median, facing outward"""
+        painter.setBrush(QBrush(median_color))
+        MEDIAN_GREY = QColor(221, 221, 221)
+        CONCRETE_COLOR = QColor(225, 225, 225)
+
         
         # Dimensions
         TOTAL_HEIGHT = 900.0
@@ -851,17 +859,24 @@ class CrossSectionCADWidget(QWidget):
         painter.setBrush(Qt.NoBrush)
         painter.drawRect(QRectF(deck_slab_left, deck_top_y,
                             deck_slab_right - deck_slab_left, deck_thick_px))
+        
+        # ---- DRAW FULL DECK SLAB (ONCE) ----
+        painter.setBrush(self.concrete_brush)
+        painter.setPen(Qt.NoPen)
+        painter.drawRect(QRectF(
+            deck_slab_left,
+            deck_top_y,
+            deck_slab_right - deck_slab_left,
+            deck_thick_px
+        ))
+
 
         if median_present:
-            painter.setBrush(self.concrete_brush)
-            painter.setPen(Qt.NoPen)
-            painter.drawRect(QRectF(cw1_start_x, deck_top_y,
-                                cw1_end_x - cw1_start_x, deck_thick_px))
-            painter.drawRect(QRectF(cw2_start_x, deck_top_y,
-                                cw2_end_x - cw2_start_x, deck_thick_px))
-            painter.setBrush(QBrush(MEDIAN_COLOR))
-            painter.drawRect(QRectF(median_start_x, deck_top_y,
-                                median_end_x - median_start_x, deck_thick_px))
+            painter.setPen(QPen(QColor(0, 0, 0), 2))
+            painter.setBrush(Qt.NoBrush)
+            painter.drawRect(QRectF(deck_slab_left, deck_top_y,
+                                    deck_slab_right - deck_slab_left, deck_thick_px))
+
         else:
             painter.setBrush(self.concrete_brush)
             painter.setPen(Qt.NoPen)
@@ -949,7 +964,7 @@ class CrossSectionCADWidget(QWidget):
         self.draw_crash_barrier(painter, right_barrier_end_x, cb_y, scale, side='right')
         
         if median_present:
-            self.draw_median_crash_barriers(painter, median_start_x, median_end_x, deck_top_y, scale)
+            self.draw_median_crash_barriers(painter, median_start_x, median_end_x, deck_top_y, scale, MEDIAN_GREY)
 
         # Draw the main deck bottom line solid (only the deck slab portion)
         painter.setPen(QPen(QColor(0, 0, 0), 1.5))
@@ -1237,7 +1252,7 @@ class CrossSectionCADWidget(QWidget):
         painter.setFont(font)
         metrics = painter.fontMetrics()
         text_w = metrics.boundingRect(label_text).width()
-        text_y = Y_OVERALL - 2  # Moved down more
+        text_y = Y_OVERALL - 5  # Moved down more
 
         self.draw_text_with_background(
             painter,
@@ -1371,20 +1386,22 @@ class CrossSectionCADWidget(QWidget):
             painter.setPen(QPen(QColor(0, 0, 0), 0.8))
             painter.drawLine(QPointF(deck_center_x, deck_top_y), QPointF(deck_center_x, deck_bottom_y))
             
-            arrow_size = 2.5
+            arrow_size = 3.5
+            arrow_gap = 2
+            half_w     = arrow_size / 2
             painter.setBrush(QBrush(QColor(0, 0, 0)))
             
             top_arrow = [
-                QPointF(deck_center_x, deck_top_y),
-                QPointF(deck_center_x - arrow_size/2, deck_top_y + arrow_size),
-                QPointF(deck_center_x + arrow_size/2, deck_top_y + arrow_size)
+                QPointF(deck_center_x, deck_top_y - arrow_gap),
+                QPointF(deck_center_x - half_w, deck_top_y - arrow_gap - arrow_size),
+                QPointF(deck_center_x + half_w, deck_top_y - arrow_gap - arrow_size),
             ]
             painter.drawPolygon(QPolygonF(top_arrow))
             
             bottom_arrow = [
-                QPointF(deck_center_x, deck_bottom_y),
-                QPointF(deck_center_x - arrow_size/2, deck_bottom_y - arrow_size),
-                QPointF(deck_center_x + arrow_size/2, deck_bottom_y - arrow_size)
+                QPointF(deck_center_x, deck_bottom_y + arrow_gap),
+                QPointF(deck_center_x - half_w, deck_bottom_y + arrow_gap + arrow_size),
+                QPointF(deck_center_x + half_w, deck_bottom_y + arrow_gap + arrow_size),
             ]
             painter.drawPolygon(QPolygonF(bottom_arrow))
             
@@ -1598,21 +1615,23 @@ class CrossSectionCADWidget(QWidget):
         tick_len = 3
         painter.drawLine(QPointF(x - tick_len, y1), QPointF(x + tick_len, y1))
         painter.drawLine(QPointF(x - tick_len, y2), QPointF(x + tick_len, y2))
-        
-        arrow_size = 3
+        arrow_gap = 2
+        arrow_size = 3      # height of arrow
+        arrow_half = 1      # half width → gives ~3:1 ratio
+
         painter.setBrush(QBrush(QColor(0, 0, 0)))
         
         top_arrow = [
-            QPointF(x, y1),
-            QPointF(x - arrow_size/2, y1 + arrow_size),
-            QPointF(x + arrow_size/2, y1 + arrow_size)
+            QPointF(x, y1 - arrow_gap),
+            QPointF(x - arrow_size/2, y1 - arrow_gap - arrow_size),
+            QPointF(x + arrow_size/2, y1 - arrow_gap - arrow_size)
         ]
         painter.drawPolygon(QPolygonF(top_arrow))
         
         bottom_arrow = [
-            QPointF(x, y2),
-            QPointF(x - arrow_size/2, y2 - arrow_size),
-            QPointF(x + arrow_size/2, y2 - arrow_size)
+            QPointF(x, y2 + arrow_gap),
+            QPointF(x - arrow_size/2, y2 + arrow_gap + arrow_size),
+            QPointF(x + arrow_size/2, y2 + arrow_gap + arrow_size)
         ]
         painter.drawPolygon(QPolygonF(bottom_arrow))
         
