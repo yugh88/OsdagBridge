@@ -20,6 +20,8 @@ class CustomWindow(QWidget):
         super().__init__()
         self.parent = parent
         self.backend = backend()
+        # >>> ADDED: one-time log splitter initialization flag
+        self._log_splitter_initialized = False
 
         self.setWindowTitle(title)
         self.setStyleSheet(
@@ -47,6 +49,22 @@ class CustomWindow(QWidget):
         self.output_dock = None
 
         self.init_ui()
+        
+    def _init_log_splitter_once(self):
+        if self._log_splitter_initialized:
+            return
+
+        splitter = self.cad_log_splitter
+        h = splitter.height()
+        if h <= 0:
+            return
+
+        splitter.setSizes([
+            int(h * 0.8),   # CAD
+            int(h * 0.2),   # Logs
+        ])
+        self._log_splitter_initialized = True
+
 
     def init_ui(self):
         # Docking icons Parent class
@@ -151,15 +169,37 @@ class CustomWindow(QWidget):
         central_V_layout.setContentsMargins(0, 0, 0, 0)
         central_V_layout.setSpacing(0)
 
-        # Add CAD widget with dual split view
-        self.cad_comp_widget = BridgeDualCADWidget(self)
-        central_V_layout.addWidget(self.cad_comp_widget)
+        # ----------------- CAD + LOG SPLITTER (ADDED) -----------------
 
-        # Create log dock as overlay (not in splitter)
+        self.cad_log_splitter = QSplitter(Qt.Vertical)
+        self.cad_log_splitter.setHandleWidth(4)
+        self.cad_log_splitter.setChildrenCollapsible(False)
+        
+
+        # CAD widget
+        self.cad_comp_widget = BridgeDualCADWidget(self)
+        self.cad_comp_widget.setSizePolicy(
+            QSizePolicy.Expanding, QSizePolicy.Expanding
+        )
+        self.cad_log_splitter.addWidget(self.cad_comp_widget)
+
+        # Log dock (inside splitter)
         self.logs_dock = LogDock(parent=self)
         self.logs_dock.setVisible(False)
-        self.logs_dock.setParent(self.central_widget)
-        self.logs_dock.setGeometry(0, 0, 800, 200)  # Will be repositioned on resize
+        self.logs_dock.setSizePolicy(
+            QSizePolicy.Expanding, QSizePolicy.Expanding
+        )
+        self.logs_dock.setMinimumHeight(80)
+        self.cad_log_splitter.addWidget(self.logs_dock)
+
+        # Stretch ratio: CAD > Logs
+        self.cad_log_splitter.setStretchFactor(0, 6)
+        self.cad_log_splitter.setStretchFactor(1, 1)
+
+        central_V_layout.addWidget(self.cad_log_splitter)
+
+        # --------------------------------------------------------------
+
         
         # log text
         self.textEdit = self.logs_dock.log_display
@@ -248,15 +288,15 @@ class CustomWindow(QWidget):
 
     def logs_dock_toggle(self):
         self.log_dock_active = not self.log_dock_active
-        self.logs_dock.setVisible(self.log_dock_active)
-        
+
+        # >>> UPDATED: splitter-based show/hide
         if self.log_dock_active:
-            # Position log dock at bottom when shown
-            self._position_log_dock()
-            self.logs_dock.raise_()  # Bring to front
+            self.logs_dock.show()
             self.log_dock_control.load(":/vectors/logs_dock_active_light.svg")
         else:
+            self.logs_dock.hide()
             self.log_dock_control.load(":/vectors/logs_dock_inactive_light.svg")
+
     
     def _position_log_dock(self):
         """Position log dock at bottom of central widget as overlay (max 1/5 height)"""
@@ -465,6 +505,10 @@ class CustomWindow(QWidget):
         # Check if being deleted
         if not self.isVisible() or self.signalsBlocked():
             return
+        
+        # >>> ADDED: one-time CAD–Log splitter initialization
+        if hasattr(self, 'cad_log_splitter'):
+            self._init_log_splitter_once()
         
         # Check if splitter exists and has children
         try:
