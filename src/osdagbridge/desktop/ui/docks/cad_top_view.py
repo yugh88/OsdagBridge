@@ -1224,7 +1224,8 @@ class TopViewCADWidget(QWidget):
         for i, note in enumerate(notes):
             note_y = notes_y + 22 + i * 13
             painter.drawText(32, note_y, note)
-
-
-
-
+            
+            
+            
+            
+            

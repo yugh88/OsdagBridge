@@ -305,7 +305,7 @@ class CrossSectionCADWidget(QWidget):
         finally:
             painter.end() 
     def draw_text_with_background(self, painter, x, y, text,
-                              bg_color=QColor(255, 255, 255, 230), 
+                              bg_color=QColor(255, 255, 255, 255), 
                               text_color=QColor(0, 0, 0), font_size=9, bold=False):
 
         font_weight = QFont.Bold if bold else QFont.Normal
@@ -320,7 +320,7 @@ class CrossSectionCADWidget(QWidget):
         max_width = max(metrics.boundingRect(line).width() for line in lines)
         total_height = line_height * len(lines)
 
-        padding = 2
+        padding = 2.1
 
         # background rectangle
         bg_rect = QRectF(
@@ -515,7 +515,7 @@ class CrossSectionCADWidget(QWidget):
             self.draw_text_with_background(painter, text_x, text_y, text,
                                         QColor(255, 255, 255, 255), QColor(0, 0, 0), 9, True)
         
-    def draw_leader_arrow(self, painter, from_x, from_y, to_x, to_y, text, bg_color=QColor(255, 255, 255, 250), text_color=QColor(0, 0, 0)):
+    def draw_leader_arrow(self, painter, from_x, from_y, to_x, to_y, text, bg_color=QColor(255, 255, 255, 255), text_color=QColor(0, 0, 0)):
         """a leader line with arrow pointing to component"""
         painter.setPen(QPen(QColor(0, 0, 0), 1.0))
         painter.drawLine(QPointF(from_x, from_y), QPointF(to_x, to_y))
@@ -1754,7 +1754,7 @@ class CrossSectionCADWidget(QWidget):
         stiff_bottom_y = stiff_top_y + stiff_h
 
         #  Chamfer size (small & proportional)
-        chamfer = min(stiff_w, flange_thick) * 0.4
+        chamfer = min(stiff_w, flange_thick) * 1.9
 
         # ================= LEFT STIFFENER =================
         lx = x - tw / 2 - stiff_w
